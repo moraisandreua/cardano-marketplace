@@ -1,0 +1,104 @@
+.mywallet-wallet-icons{
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
+}
+
+.mywallet-wallet-icons img{
+    width:64px;
+    margin: 50px 10px;
+    cursor: pointer;
+}
+
+.mywallet-wallet-title{
+    color:white;
+    font-size: 25pt;
+
+    padding-left:64px;
+}
+
+.mywallet-wallet-portfolio{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px 60px;
+
+    width:100%;
+}
+
+.mywallet-wallet-portfolio-card-container{
+    width: calc( 100% / 5 );
+    
+    padding:10px; 
+}
+
+.mywallet-wallet-portfolio-card{
+    display: flex;
+    flex-direction: column;
+}
+
+.mywallet-wallet-portfolio-card img{
+    width:100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+
+    background-color: #3a3a3a;
+
+    border:0px;
+    border-radius: 10px 10px 0px 0px;
+}
+
+.mywallet-wallet-portfolio-card-info{
+    display: flex;
+    flex-direction: column;
+
+    background-color: rgb(45, 45, 45);
+
+    padding: 15px;
+
+    border-radius: 0px 0px 10px 10px;
+}
+
+.mywallet-wallet-portfolio-card-info span:first-child, .mywallet-wallet-portfolio-card-info span:nth-child(2){
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.mywallet-wallet-portfolio-card-info span:first-child{
+    color: #76a9fa;
+    font-size: 14pt;
+
+    padding: 0px 0px 3px 0px;
+    
+    cursor: default;
+}
+
+.mywallet-wallet-portfolio-card-info span:nth-child(2){
+    color: white;
+    font-size: 14pt;
+
+    padding: 3px 0px 10px 0px;
+    
+    cursor: default;
+}
+
+.mywallet-wallet-portfolio-card-info-button{
+    font-size: 16px;
+    background-color: rgb(248, 101, 251);
+
+    width:100%;
+
+    padding: 10px 15px;
+
+    border: 0px;
+    border-radius: 8px;
+}
+
+.mywallet-wallet-portfolio-card-info-button:hover{
+    background-color: rgb(227, 92, 230);
+}
+
+.mywallet-wallet-portfolio-card-info-button:active{
+    background-color: rgb(195, 79, 197);
+}

@@ -1,0 +1,228 @@
+<html>
+    <head>
+        <title>Test functions</title>
+        <link href="assets/css/general.css" rel="stylesheet" type="text/css"/>
+        <link href="assets/css/mywallet.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <div class="navbar">
+            <a href="index.html"><img src="assets/images/logo.png" class="logo" /></a>
+
+            <div class="wrap"></div>
+
+            <a href="launchpad.html" class="button">launchpad</a>
+            <a href="marketplace.html" class="button">marketplace</a>
+            <a href="mywallet.html" class="button selected">my wallet</a>
+        </div>
+
+        <div class="content">
+            <div class="mywallet-wallet-icons">
+                <img src="assets/images/eternl_wallet.png" onclick="connectWallet('eternl')"/>
+                <img src="assets/images/flint_wallet.png" onclick="connectWallet('flint')"/>
+                <img src="assets/images/gero_wallet.png" onclick="connectWallet('gero')"/>
+                <img src="assets/images/nami_wallet.png" onclick="connectWallet('nami')"/>
+                <img src="assets/images/typhon_wallet.png" onclick="connectWallet('typhon')"/>
+                <img src="assets/images/yoroi_wallet.png" onclick="connectWallet('yoroi')"/>
+
+                <span class="mywallet-wallet-title" id="wallet-connected-label">Wallet Connected!</span>
+            </div>
+
+            <div class="mywallet-wallet-title">Your portfolio:</div>
+            <div class="mywallet-wallet-portfolio" id="mywallet-wallet-portfolio">
+                
+            </div>
+        </div>
+
+        <script src="assets/js/blockfrost.js" type="text/javascript"></script>
+        <script src="assets/js/constants.js" type="text/javascript"></script>
+        <script>
+            // check if wallet is already connected
+            if(localStorage.getItem("selectedWallet")){
+                // show label 'wallet connected!'
+                document.getElementById("wallet-connected-label").style.display="block";
+
+                // hide all wallet button images
+                document.querySelectorAll(".mywallet-wallet-icons img").forEach(element => {
+                    element.style.display="none";
+                });
+
+                // interval to wait for the cardano wallets to be injected
+                var checkCardano = setInterval(()=>{
+                    if(window.cardano[localStorage.getItem("selectedWallet")]){
+                        // clear interval after the previous selected wallet is injected
+                        clearInterval(checkCardano);
+                        
+                        // enable the wallet to extract the hex format address and request the server for the assets
+                        window.cardano[localStorage.getItem("selectedWallet")].enable()
+                        .then(async (cardano_api)=>{
+                            var address_hex = await cardano_api.getChangeAddress();
+
+                            fetch(BACKEND_API_URL+"/wallet?address="+address_hex).then((data)=>data.json()).then((data)=>{
+                                if(data["status"]=="ok")
+                                    iterateAssets(data["assets"], address_hex)
+                                else
+                                alert("Error: " + data["message"])
+                            })
+                        })
+                    }
+                }, 100);
+                
+                
+            }else{
+                // show all wallet button images
+                document.querySelectorAll(".mywallet-wallet-icons img").forEach(element => {
+                    element.style.display="block";
+                });
+
+                // hide label 'wallet connected!'
+                document.getElementById("wallet-connected-label").style.display="none";
+            }
+        
+
+            const connectWallet = (walletName) => {
+                if(window.cardano[walletName] !== undefined){
+                    var API = window.cardano[walletName]
+                    .enable()
+                    .then((data)=>{
+                        localStorage.setItem("selectedWallet", walletName); 
+                        window.location.reload();
+                    });
+
+                }else{
+                    alert("You don't have that wallet installed!");
+                }
+            }
+
+
+            const iterateAssets = (assets, user_address) => {
+                const endpoint = "assets/";
+
+                assets.forEach((a)=>{
+                    setTimeout(()=>{
+                        if(a["unit"]!="lovelace")
+                            fetch(BLOCKFROST_API_URL+endpoint+a["unit"], {headers:{"project_id":BLOCKFROST_PROJECT_ID}}).then((data)=>data.json()).then((data)=>showAsset(data))
+                    }, 500)
+                })
+            }
+
+
+            const showAsset = (asset) => {
+
+                /*
+                    <div class="mywallet-wallet-portfolio-card-container">
+                        <div class="mywallet-wallet-portfolio-card">
+                            <img src=""/>
+                            <div class="mywallet-wallet-portfolio-card-info">
+                                <span>collection name</span>
+                                <span>nft name</span>
+                                <button class="mywallet-wallet-portfolio-card-info-button">Sell NFT</button>
+                            </div>
+                        </div>
+                    </div>
+                */
+
+               if(!asset["onchain_metadata"])
+                    return 0
+                
+                const cardContainer = document.createElement("div");
+                cardContainer.className="mywallet-wallet-portfolio-card-container";
+
+                const card = document.createElement("div");
+                card.className="mywallet-wallet-portfolio-card";
+
+                cardContainer.appendChild(card);
+
+                const image = document.createElement("img");
+                image.src="https://ipfs.io/ipfs/" + asset["onchain_metadata"]["image"].replace("ipfs://", "");
+
+                const cardInfo = document.createElement("div");
+                cardInfo.className="mywallet-wallet-portfolio-card-info";
+
+                card.appendChild(image);
+                card.appendChild(cardInfo)
+
+                const cardInfoColection = document.createElement("span");
+                cardInfoColection.innerText="Collection Name";
+
+                const cardInfoNft = document.createElement("span");
+                cardInfoNft.innerText = hex2a(asset["asset_name"])
+
+                const cardInfoButton = document.createElement("button");
+                cardInfoButton.className="mywallet-wallet-portfolio-card-info-button";
+                cardInfoButton.innerText="Sell NFT";
+                cardInfoButton.addEventListener('click', ()=>requestSell(asset["policy_id"], asset["asset_name"], 30))
+
+                cardInfo.appendChild(cardInfoColection);
+                cardInfo.appendChild(cardInfoNft);
+                cardInfo.appendChild(cardInfoButton);
+
+                document.getElementById("mywallet-wallet-portfolio").appendChild(cardContainer);
+            }
+
+            const hex2a = (hexx) => {
+                var hex = hexx.toString();//force conversion
+                var str = '';
+
+                for (var i = 0; i < hex.length; i += 2)
+                    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+
+                return str;
+            }
+
+            const requestSell = (policy_id, asset_name, price) => {
+                
+                // check if wallet is already connected
+                if(!localStorage.getItem("selectedWallet"))
+                    window.location.href='./mywallet.html';  
+
+                var API = window.cardano[localStorage.getItem("selectedWallet")].enable().then(async (data_api)=>{
+                    var seller_address = await data_api.getChangeAddress();
+                    
+                    request_body=JSON.stringify({
+                        "seller_address":seller_address,
+                        "policy_id":policy_id,
+                        "asset_name_hex":asset_name,
+                        "price":price
+                    });
+
+                    fetch(BACKEND_API_URL+"sell", {method:"POST", body:request_body})
+                    .then((data)=>data.json())
+                    .then((data)=>{
+                        if(data["tx_cbor"]){
+                            data_api.signTx(data["tx_cbor"], true).then((signedTx)=>{
+                                var witness = signedTx;
+                                var tx_cbor = data["tx_cbor"];
+                                var storage_wallet_name = data["storage_wallet_name"];
+
+                                // secondly send back the tx_cbor and witness
+                                fetch(BACKEND_API_URL + "sell", {
+                                    method:"PUT", 
+                                    body:JSON.stringify({
+                                        "seller_address":seller_address,
+                                        "policy_id":policy_id,
+                                        "asset_name_hex":asset_name,
+                                        "price":price,
+                                        "witness":witness,
+                                        "tx_cbor":tx_cbor,
+                                        "storage_wallet_name":storage_wallet_name
+                                    })
+                                })
+                                .then((data)=>data.json())
+                                .then((data)=>{
+                                    if(data["status"]=="ok")
+                                        alert("Successfuly submitted with id "+data["tx_id"])
+                                    else
+                                        alert("There was an error: " + data["message"])
+                                });
+
+                            })
+                        }
+                    })
+                })
+
+                
+            }
+
+        </script>
+    </body>
+</html>

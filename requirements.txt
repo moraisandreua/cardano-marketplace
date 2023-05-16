@@ -1,0 +1,6 @@
+blockfrost-python
+pycardano
+Flask
+flask-restful
+flask-cors
+requests

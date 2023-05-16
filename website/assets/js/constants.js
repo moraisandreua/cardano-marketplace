@@ -1,0 +1,3 @@
+const BACKEND_API_URL = "http://127.0.0.1:5000/";
+const INFO_NFT_POLICY = "32d43fde4af7a2a541c44ad1ffac3f0619d7eae61eac98b94b48e34c";
+const MAIN_NFT_POLICY = "00bd5b5d5057e46e389a09cd95f28641f3a783da03eac1578baf19d3";

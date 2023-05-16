@@ -1,0 +1,88 @@
+.content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mint-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 50%;
+
+    border-radius: 20px;
+
+    padding: 40px;
+
+    background-color: rgb(50, 50, 50);
+}
+
+.mint-container-title{
+    color:white;
+    font-size: 22pt;
+    font-weight:600;
+
+    margin-bottom: 20px;
+}
+
+.mint-container-subtitle{
+    color:rgb(230, 230, 230);
+    font-size: 18pt;
+
+    margin-top:20px;
+}
+
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 33%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background: 
+      radial-gradient(closest-side, rgb(50, 50, 50) 85%, transparent 80% 100%),
+      conic-gradient(rgb(123, 77, 188) 10%, rgb(111, 111, 111) 0);    
+}
+
+.progress-bar-numbers, .progress-bar-label{
+    color:white;
+}
+
+.progress-bar-numbers{
+    font-size: 20pt;
+}
+
+.progress-bar-numbers span{
+    color:rgb(123, 77, 188);
+    font-size: 25pt;
+    font-weight: bold;
+
+    margin-right:5px;
+}
+
+.progress-bar-label{
+    font-size: 15pt;
+}
+
+.mint-container-button{
+    font-size: 16px;
+    background-color: rgb(248, 101, 251);
+
+    width:100%;
+
+    padding: 15px;
+
+    border: 0px;
+    border-radius: 8px;
+}
+
+.mint-container-button:hover{
+    background-color: rgb(227, 92, 230);
+}
+
+.mint-container-button:active{
+    background-color: rgb(195, 79, 197);
+}
